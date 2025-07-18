@@ -3,10 +3,16 @@ from .models import User, Conversation, Message
 
 
 class UserSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    email = serializers.CharField(max_length=100)
+
     class Meta:
         model = User
-        fields = ['id', 'email', 'username']
-
+        fields = ['id', 'email', 'username','full_name']
+    def validate_email(self, value):
+    if not value.endswith('@gmail.com'):
+        raise serializers.ValidationError("Only Gmail addresses are allowed.")
+    return value
 
 class MessageSerializer(serializers.ModelSerializer):
     sender = UserSerializer(read_only=True)
