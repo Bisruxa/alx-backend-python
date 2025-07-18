@@ -16,16 +16,16 @@ class ConversationViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         conversation = serializer.save()
         conversation.participants.add(self.request.user)
-
-    @action(detail=True, methods=['post'])
-    def add_message(self, request, pk=None):
-        conversation = self.get_object()
-        message = Message.objects.create(
-            conversation=conversation,
-            sender=request.user,
-            text=request.data.get('text')
-        )
-        return Response(MessageSerializer(message).data)
+ 
+    # @action(detail=True, methods=['post'])
+    # def add_message(self, request, pk=None):
+    #     conversation = self.get_object()
+    #     message = Message.objects.create(
+    #         conversation=conversation,
+    #         sender=request.user,
+    #         text=request.data.get('text')
+    #     )
+    #     return Response(MessageSerializer(message).data)
 
 
 class MessageViewSet(viewsets.ModelViewSet):
@@ -38,3 +38,5 @@ class MessageViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(sender=self.request.user)
 
+def home(request):
+    return render(request,'home.html')
