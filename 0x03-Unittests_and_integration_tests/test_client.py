@@ -51,6 +51,19 @@ class TestGithubOrgClient(unittest.TestCase):
   def test_has_license(self,repo,license_key,expected):
     result = GithubOrgClient.has_license(repo, license_key)
     self.assertEqual(result, expected)
+  def test_public_repos_url(self):
+        """Test _public_repos_url property."""
+        client = GithubOrgClient("testorg")
+
+        with patch.object(
+            GithubOrgClient,
+            "org",
+            new_callable=PropertyMock,
+            return_value={"repos_url": "https://api.github.com/orgs/testorg/repos"}
+        ) as mock_org:
+            result = client._public_repos_url
+            self.assertEqual(result, "https://api.github.com/orgs/testorg/repos")
+            mock_org.assert_called_once()
 
 @parameterized_class([
     {
