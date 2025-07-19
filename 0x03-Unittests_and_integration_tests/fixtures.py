@@ -1,5 +1,55 @@
 #!/usr/bin/env python3
 
+# fixtures.py
+
+org_payload = {
+    "login": "google",
+    "id": 1342004,
+    "url": "https://api.github.com/orgs/google",
+    # Add any other fields you want to test with
+}
+
+repos_payload = [
+    {
+        "id": 7697149,
+        "name": "episodes.dart",
+        "full_name": "google/episodes.dart",
+        "private": False,
+        "owner": {
+            "login": "google",
+            "id": 1342004,
+            # ... other owner fields
+        },
+        "html_url": "https://github.com/google/episodes.dart",
+        "description": "A framework for timing performance of web apps.",
+        "fork": False,
+        "url": "https://api.github.com/repos/google/episodes.dart",
+        "license": {
+            "key": "bsd-3-clause",
+            "name": "BSD 3-Clause \"New\" or \"Revised\" License",
+            "spdx_id": "BSD-3-Clause",
+            "url": "https://api.github.com/licenses/bsd-3-clause",
+        },
+        # ... other repo fields as needed
+    },
+    # You can add more repos here for tests
+    {
+        "id": 1234567,
+        "name": "another-repo",
+        "license": {
+            "key": "apache-2.0",
+            "name": "Apache License 2.0",
+            "spdx_id": "Apache-2.0",
+            "url": "https://api.github.com/licenses/apache-2.0",
+        },
+    }
+]
+
+expected_repos = ["episodes.dart", "another-repo"]
+
+apache2_repos = ["another-repo"]  # filtered list by license key "apache-2.0"
+
+
 TEST_PAYLOAD = [
   (
     {"repos_url": "https://api.github.com/orgs/google/repos"},

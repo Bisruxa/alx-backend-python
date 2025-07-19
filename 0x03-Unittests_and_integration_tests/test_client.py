@@ -4,7 +4,8 @@ import unittest
 from parameterized import parameterized, parameterized_class
 from unittest.mock import patch, MagicMock
 from client import GithubOrgClient
-import fixtures
+from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
+
 class TestGithubOrgClient(unittest.TestCase):
   @parameterized.expand([
     ("goggle",),
