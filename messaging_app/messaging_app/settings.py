@@ -137,3 +137,8 @@ REST_FRAMEWORK = {
     ],
      'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
+SIMPLE_JWT = {
+    'USER_ID_FIELD': 'user_id',   # your custom primary key field
+    'USER_ID_CLAIM': 'user_id',   # name of the claim in JWT payload (optional)
+}
+

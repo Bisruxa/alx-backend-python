@@ -1,25 +1,50 @@
 from rest_framework import serializers
 from .models import User, Conversation, Message
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
+class RegisterSerializer(serializers.ModelSerializer):
+    password=serializers.CharField(write_only =True,min_length=8)
+
+    class Meta:
+        model= User
+        fields=['user_id','email','username','first_name','last_name','phone_number','password']
+        read_only_fields=['user_id']
+    def validate_email(self,value):
+        if not value.endswith('@gmail.com'):
+            raise serializers.ValidationError("Only Gmail addresses are allowed.")
+        return value
+    def create(self,validated_data):
+        password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.set_password(password)
+        user.save()
+       
+        return user
+
+# this serilaizer is for displaying users information 
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
-    email = serializers.CharField(max_length=100)
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'username','full_name']
+        fields = ['user_id', 'email', 'username', 'full_name']
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}"
+
     def validate_email(self, value):
         if not value.endswith('@gmail.com'):
             raise serializers.ValidationError("Only Gmail addresses are allowed.")
-            return value
+        return value
 
 class MessageSerializer(serializers.ModelSerializer):
     sender = UserSerializer(read_only=True)
 
     class Meta:
         model = Message
-        fields = ['id', 'sender', 'text', 'timestamp']
+        fields = ['message_id', 'sender', 'message_body', 'sent_at']
+
 
 
 class ConversationSerializer(serializers.ModelSerializer):
@@ -28,4 +53,4 @@ class ConversationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Conversation
-        fields = ['id', 'participants', 'created_at', 'messages']
+        fields = ['conversation_id', 'participants', 'created_at', 'messages']

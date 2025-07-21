@@ -6,7 +6,34 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Conversation, Message
-from .serializers import ConversationSerializer, MessageSerializer
+from .serializers import ConversationSerializer, MessageSerializer,RegisterSerializer
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken 
+from rest_framework.permissions import AllowAny
+
+class RegisterView(APIView):
+      
+    permission_classes = [AllowAny]
+    def post(self,request):
+
+        serializer= RegisterSerializer(data = request.data)
+        if serializer.is_valid():
+            user= serializer.save()
+            refresh= RefreshToken.for_user(user)
+            return Response({
+                "refresh":str(refresh),
+                "access":str(refresh.access_token),
+                "user":{
+                    "user_id":str(user.user_id),
+                    "email":user.email,
+                    "username":user.username,
+                    "first_name":user.first_name,
+                    "last_name":user.last_name,
+                    "phone_number":user.phone_number
+
+                }
+            },status = status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
@@ -20,10 +47,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         conversation = serializer.save()
         conversation.participants.add(self.request.user)
-        return Response(
-            ConversationSerializer(conversation).data,
-            status=status.HTTP_201_CREATED
-        )
+       
 
 
 class MessageViewSet(viewsets.ModelViewSet):
@@ -38,7 +62,4 @@ class MessageViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         message = serializer.save(sender=self.request.user)
-        return Response(
-            MessageSerializer(message).data,
-            status=status.HTTP_201_CREATED
-        )
+        
