@@ -10,9 +10,9 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'email', 'username','full_name']
     def validate_email(self, value):
-    if not value.endswith('@gmail.com'):
-        raise serializers.ValidationError("Only Gmail addresses are allowed.")
-    return value
+        if not value.endswith('@gmail.com'):
+            raise serializers.ValidationError("Only Gmail addresses are allowed.")
+            return value
 
 class MessageSerializer(serializers.ModelSerializer):
     sender = UserSerializer(read_only=True)
