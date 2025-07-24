@@ -10,7 +10,8 @@ from .serializers import ConversationSerializer, MessageSerializer,RegisterSeria
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken 
 from rest_framework.permissions import AllowAny
-from .permissions import IsParticipantOrReadOnly
+from .permissions import IsAuthenticatedAndParticipant
+from rest_framework.exceptions import PermissionDenied
 
 class RegisterView(APIView):
       
@@ -40,10 +41,10 @@ class RegisterView(APIView):
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
-    permission_classes = [permissions.IsAuthenticated, IsParticipantOrReadOnly]
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = ['participants__username']
-    filterset_fields = ['participants']
+    permission_classes = [IsAuthenticatedAndParticipant]
+   
+    def get_queryset(self):
+        return Conversation.objects.filter(participants=self.request.user)
 
     def perform_create(self, serializer):
         conversation = serializer.save()
@@ -56,10 +57,8 @@ class ConversationViewSet(viewsets.ModelViewSet):
 class MessageViewSet(viewsets.ModelViewSet):
 
     serializer_class = MessageSerializer
-    permission_classes = [permissions.IsAuthenticated, IsParticipantOrReadOnly]
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = ['text']
-    filterset_fields = ['conversation', 'sender']
+    permission_classes = [IsAuthenticatedAndParticipant]
+    
 
     def get_queryset(self):
         return Message.objects.filter(conversation__participants=self.request.user)
