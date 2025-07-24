@@ -5,7 +5,7 @@ from rest_framework import viewsets, permissions, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
-from chats.models import Conversation, Message
+from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer,RegisterSerializer
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken 
