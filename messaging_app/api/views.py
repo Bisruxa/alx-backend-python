@@ -5,11 +5,12 @@ from rest_framework import viewsets, permissions, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Conversation, Message
+from chats.models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer,RegisterSerializer
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken 
 from rest_framework.permissions import AllowAny
+from .permissions import IsParticipantOrReadOnly
 
 class RegisterView(APIView):
       
@@ -39,20 +40,23 @@ class RegisterView(APIView):
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsParticipantOrReadOnly]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['participants__username']
     filterset_fields = ['participants']
 
     def perform_create(self, serializer):
         conversation = serializer.save()
-        conversation.participants.add(self.request.user)
+        if self.request.user not in conversation.participants.all():
+            conversation.participants.add(self.request.user)
+
        
 
 
 class MessageViewSet(viewsets.ModelViewSet):
+
     serializer_class = MessageSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsParticipantOrReadOnly]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['text']
     filterset_fields = ['conversation', 'sender']

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Conversation, Message
+from chats.models import User, Conversation, Message
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -43,9 +43,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ['message_id', 'sender', 'message_body', 'sent_at']
-
-
+        fields = ['message_id', 'sender', 'message_body', 'sent_at','conversion']
 
 class ConversationSerializer(serializers.ModelSerializer):
     participants = UserSerializer(many=True, read_only=True)
