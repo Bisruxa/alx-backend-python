@@ -71,3 +71,20 @@ class OffensiveLanguageMiddleware:
         else:
             ip = request.META.get('REMOTE_ADDR')
         return ip
+
+class RolepermissionMiddleware:
+  def __init__(self,get_response):
+    self.get_response= get_response
+  def __call__(self, request):
+        # Only restrict POST/PUT/DELETE requests (you can adjust this logic)
+        if request.method in ['POST', 'PUT', 'DELETE']:
+            # Make sure user is authenticated
+            user = getattr(request, 'user', None)
+            if user is not None and user.is_authenticated:
+                # Check user role (you should have a role field in your user model)
+                if not hasattr(user, 'role') or user.role not in ['admin', 'moderator']:
+                    return JsonResponse({'error': 'Forbidden - Insufficient role'}, status=403)
+            else:
+                return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+        return self.get_response(request)
