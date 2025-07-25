@@ -48,7 +48,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
     # filtering
     filter_backends =[DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields=['user','conversation']
-    search_fileds=['user']
+    search_fields=['user']
     ordering_fields=['created_at']
    
     def get_queryset(self):
@@ -71,7 +71,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     # filtering
     filter_backends =[DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields=['user','conversation']
-    search_fileds=['content']
+    search_fields=['content']
     ordering_fields=['created_at']
 
     def get_queryset(self):

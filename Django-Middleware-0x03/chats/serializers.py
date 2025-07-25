@@ -43,7 +43,8 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ['message_id', 'sender', 'message_body', 'sent_at','conversion']
+        fields = '__all__'
+        read_only_fields = ['user']
 
 class ConversationSerializer(serializers.ModelSerializer):
     participants = UserSerializer(many=True, read_only=True)
