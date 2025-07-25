@@ -12,6 +12,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
 from .permissions import IsAuthenticatedAndParticipant
 from rest_framework.exceptions import PermissionDenied
+from rest_framework import filters
+from django_filters.rest_frammwork import DjangoFilterBackend
 
 class RegisterView(APIView):
       
@@ -42,6 +44,12 @@ class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
     permission_classes = [IsAuthenticatedAndParticipant]
+
+    # filtering
+    filter_backends =[DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields=['user','conversation']
+    search_fileds=['user']
+    ordering_fields=['created_at']
    
     def get_queryset(self):
         return Conversation.objects.filter(participants=self.request.user)
@@ -60,9 +68,29 @@ class MessageViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedAndParticipant]
     
 
+    # filtering
+    filter_backends =[DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields=['user','conversation']
+    search_fileds=['content']
+    ordering_fields=['created_at']
+
     def get_queryset(self):
-        return Message.objects.filter(conversation__participants=self.request.user)
+         conversation_id = self.kwargs.get('conversation_id')
+        try:
+            conversation = Conversation.objects.get(id=conversation_id)
+        except Conversation.DoesNotExist:
+            raise PermissionDenied(detail="Conversation not found")
+
+        # Permission check
+        if self.request.user not in conversation.participants.all():
+            raise PermissionDenied(detail="You are not a participant", code=status.HTTP_403_FORBIDDEN)
+
+        return Message.objects.filter(conversation=conversation)
 
     def perform_create(self, serializer):
-        message = serializer.save(sender=self.request.user)
+        conversation_id = self.kwargs.get('conversation_id')
+        conversation = Conversation.objects.get(id=conversation_id)
+        if self.request.user not in conversation.participants.all():
+            raise PermissionDenied(detail="You are not a participant", code=status.HTTP_403_FORBIDDEN)
+        serializer.save(user=self.request.user, conversation=conversation)
         
