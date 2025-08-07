@@ -5,7 +5,7 @@ services:
     image: mysql:5.7
     restart: always
     environment:
-      MYSQL_DATABASE: messagingdb
+      MYSQL_DB: messagingdb
       MYSQL_USER: messaginguser
       MYSQL_PASSWORD: messagingpass
       MYSQL_ROOT_PASSWORD: rootpass
